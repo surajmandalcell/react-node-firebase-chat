@@ -1,0 +1,86 @@
+{
+  "name": "@surajmandalcell/react-firebase-chat-core",
+  "version": "1.4.2",
+  "description": "Actively maintained, community-driven Firebase BaaS for chat applications with an optional chat UI.",
+  "homepage": "https://flyer.chat",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/surajmandalcell/react-firebase-chat-core.git"
+  },
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "author": "Suraj Mandal",
+  "contributors": [
+    "Oleksandr Demchenko <alexdemchenko@yahoo.com>",
+    "Vitalii Danylov <vitaliidanylov1992@gmail.com>",
+    "Volodymyr Smolianinov <voidozzer@gmail.com>"
+  ],
+  "license": "Apache-2.0",
+  "keywords": [
+    "chat",
+    "firebase",
+    "ios",
+    "android",
+    "typescript"
+  ],
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "compile": "rm -rf lib && tsc -p .",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "prepare": "yarn compile",
+    "test": "jest",
+    "type-coverage": "type-coverage"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.15.8",
+    "@babel/runtime": "^7.15.4",
+    "@react-native-community/eslint-config": "^3.0.1",
+    "@react-native-firebase/app": "^12.9.3",
+    "@react-native-firebase/auth": "^12.9.3",
+    "@react-native-firebase/firestore": "^12.9.3",
+    "@types/jest": "^27.0.2",
+    "@types/react-native": "^0.66.0",
+    "@types/react-test-renderer": "^17.0.1",
+    "babel-jest": "^27.3.1",
+    "eslint": "^7.32.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "jest": "^27.3.1",
+    "metro-react-native-babel-preset": "^0.66.2",
+    "react": "^17.0.2",
+    "react-native": "^0.66.1",
+    "react-test-renderer": "^17.0.2",
+    "type-coverage": "^2.18.2",
+    "typescript": "^4.4.4"
+  },
+  "peerDependencies": {
+    "@react-native-firebase/app": "*",
+    "@react-native-firebase/auth": "*",
+    "@react-native-firebase/firestore": "*",
+    "react": "*",
+    "react-native": "*"
+  },
+  "jest": {
+    "preset": "react-native",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
+  },
+  "typeCoverage": {
+    "cache": true,
+    "ignoreCatch": true,
+    "ignoreNonNullAssertion": true,
+    "ignoreUnread": true,
+    "is": 100,
+    "showRelativePath": true
+  }
+}

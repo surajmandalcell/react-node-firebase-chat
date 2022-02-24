@@ -1,5 +1,3 @@
-import { ImageURISource } from 'react-native'
-
 /** Interface that represents the chat config. Can be used for setting custom names
  * for rooms and users collections. Call `setConfig` before doing anything else if
  * you want to change the default collection names. When using custom names don't forget
@@ -96,7 +94,7 @@ export interface PreviewDataImage {
 export interface Room {
   createdAt?: number
   id: string
-  imageUrl?: ImageURISource['uri']
+  imageUrl?: string
   lastMessages?: MessageType.Any[]
   metadata?: Record<string, any>
   name?: string
@@ -109,7 +107,7 @@ export interface User {
   createdAt?: number
   firstName?: string
   id: string
-  imageUrl?: ImageURISource['uri']
+  imageUrl?: string
   lastName?: string
   lastSeen?: number
   metadata?: Record<string, any>

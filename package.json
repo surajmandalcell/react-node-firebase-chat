@@ -82,5 +82,8 @@
     "ignoreUnread": true,
     "is": 100,
     "showRelativePath": true
+  },
+  "dependencies": {
+    "firebase": "^9.6.7"
   }
 }

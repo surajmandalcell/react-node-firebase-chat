@@ -1,9 +1,19 @@
-import { FirebaseAuthTypes } from '@react-native-firebase/auth'
-import firestore, {
-  FirebaseFirestoreTypes,
-} from '@react-native-firebase/firestore'
+import auth, { UserProfile } from 'firebase/auth';
+import {
+  collection,
+  deleteDoc,
+  doc,
+  DocumentData,
+  DocumentSnapshot,
+  Firestore,
+  getDoc,
+  QueryDocumentSnapshot,
+  QuerySnapshot,
+  serverTimestamp,
+  setDoc,
+} from 'firebase/firestore/lite';
 
-import { FirebaseChatCoreConfig, Room, User } from './types'
+import { FirebaseChatCoreConfig, Room, User } from './types';
 
 export let ROOMS_COLLECTION_NAME = 'rooms'
 export let USERS_COLLECTION_NAME = 'users'
@@ -16,32 +26,35 @@ export const setConfig = (config: FirebaseChatCoreConfig) => {
 }
 
 /** Creates {@link User} in Firebase to store name and avatar used on rooms list */
-export const createUserInFirestore = async (user: User) => {
-  await firestore().collection(USERS_COLLECTION_NAME).doc(user.id).set({
-    createdAt: firestore.FieldValue.serverTimestamp(),
+export const createUserInFirestore = async (user: User, db: Firestore) => {
+  const _collection = collection(db, USERS_COLLECTION_NAME)
+  const _doc = doc(_collection, user.id);
+  await setDoc(_doc, {
+    createdAt: serverTimestamp(),
     firstName: user.firstName,
     imageUrl: user.imageUrl,
     lastName: user.lastName,
     lastSeen: user.lastSeen,
     metadata: user.metadata,
     role: user.role,
-    updatedAt: firestore.FieldValue.serverTimestamp(),
-  })
+    updatedAt: serverTimestamp(),
+  });
 }
 
 /** Removes {@link User} from `users` collection in Firebase */
-export const deleteUserFromFirestore = async (userId: string) => {
-  await firestore().collection(USERS_COLLECTION_NAME).doc(userId).delete()
+export const deleteUserFromFirestore = async (userId: string, db: Firestore) => {
+  const _collection = collection(db, USERS_COLLECTION_NAME)
+  const _doc = doc(_collection, userId)
+  await deleteDoc(_doc);
 }
 
 /** Fetches user from Firebase and returns a promise */
-export const fetchUser = async (userId: string, role?: User['role']) => {
-  const doc = await firestore()
-    .collection(USERS_COLLECTION_NAME)
-    .doc(userId)
-    .get()
+export const fetchUser = async (userId: string, db: Firestore, role?: User['role']) => {
+  const _collection = collection(db, USERS_COLLECTION_NAME)
+  const _doc = doc(_collection, userId);
+  const __doc = await getDoc(_doc);
 
-  const data = doc.data()!
+  const data = __doc.data()!
 
   const user: User = {
     // Ignore types here, not provided by the Firebase library
@@ -49,7 +62,7 @@ export const fetchUser = async (userId: string, role?: User['role']) => {
     createdAt: data.createdAt?.toMillis() ?? undefined,
     // type-coverage:ignore-next-line
     firstName: data.firstName ?? undefined,
-    id: doc.id,
+    id: __doc.id,
     // type-coverage:ignore-next-line
     imageUrl: data.imageUrl ?? undefined,
     // type-coverage:ignore-next-line
@@ -71,12 +84,14 @@ export const fetchUser = async (userId: string, role?: User['role']) => {
 export const processRoomsQuery = async ({
   firebaseUser,
   query,
+  db
 }: {
-  firebaseUser: FirebaseAuthTypes.User
-  query: FirebaseFirestoreTypes.QuerySnapshot
+  firebaseUser: UserProfile,
+  query: QuerySnapshot
+  db: Firestore
 }) => {
-  const promises = query.docs.map(async (doc) =>
-    processRoomDocument({ doc, firebaseUser })
+  const promises = query.docs.map(async (_doc) =>
+    processRoomDocument({ _doc, firebaseUser, db })
   )
 
   return await Promise.all(promises)
@@ -84,20 +99,22 @@ export const processRoomsQuery = async ({
 
 /** Returns a {@link Room} created from Firebase document */
 export const processRoomDocument = async ({
-  doc,
+  _doc,
   firebaseUser,
+  db
 }: {
-  doc:
-    | FirebaseFirestoreTypes.DocumentSnapshot<FirebaseFirestoreTypes.DocumentData>
-    | FirebaseFirestoreTypes.QueryDocumentSnapshot<FirebaseFirestoreTypes.DocumentData>
-  firebaseUser: FirebaseAuthTypes.User
+  _doc:
+  | DocumentSnapshot<DocumentData>
+  | QueryDocumentSnapshot<DocumentData>,
+  firebaseUser: UserProfile,
+  db: Firestore
 }) => {
-  const data = doc.data()!
+  const data = _doc.data()!
 
   // Ignore types here, not provided by the Firebase library
   // type-coverage:ignore-next-line
   const createdAt = data.createdAt?.toMillis() ?? undefined
-  const id = doc.id
+  const id = _doc.id
   // type-coverage:ignore-next-line
   const updatedAt = data.updatedAt?.toMillis() ?? undefined
 
@@ -117,7 +134,7 @@ export const processRoomDocument = async ({
     (data.userRoles as Record<string, User['role']>) ?? undefined
 
   const users = await Promise.all(
-    userIds.map((userId) => fetchUser(userId, userRoles?.[userId]))
+    userIds.map((userId) => fetchUser(userId, db, userRoles?.[userId]))
   )
 
   if (type === 'direct') {

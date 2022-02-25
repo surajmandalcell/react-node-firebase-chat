@@ -1,10 +1,9 @@
 import { collection, doc, Firestore, onSnapshot } from 'firebase/firestore';
 import React from 'react';
 
-import { ROOMS_COLLECTION_NAME } from '.';
+import { processRoomDocument, ROOMS_COLLECTION_NAME } from '../common/utils';
 import { IRoom } from './types';
 import { useFirebaseUser } from './useFirebaseUser';
-import { processRoomDocument } from './utils';
 
 /** Returns a stream of changes in a room from Firebase */
 export const useRoom = (initialRoom: IRoom, db: Firestore) => {

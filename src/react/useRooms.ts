@@ -1,10 +1,8 @@
-import firestore from '@react-native-firebase/firestore';
-import * as React from 'react';
+import React from 'react';
 
-import { ROOMS_COLLECTION_NAME } from '.';
+import { fetchUser, processRoomsQuery, ROOMS_COLLECTION_NAME } from '../common/utils';
 import { IRoom, IUser } from './types';
 import { useFirebaseUser } from './useFirebaseUser';
-import { fetchUser, processRoomsQuery } from './utils';
 
 /** Returns a stream of rooms from Firebase. Only rooms where current
  * logged in user exist are returned. `orderByUpdatedAt` is used in case

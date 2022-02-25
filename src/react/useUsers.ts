@@ -1,7 +1,7 @@
 import { collection, Firestore, onSnapshot } from 'firebase/firestore';
 import React from 'react';
 
-import { USERS_COLLECTION_NAME } from '.';
+import { USERS_COLLECTION_NAME } from '../common/utils';
 import { IUser } from './types';
 import { useFirebaseUser } from './useFirebaseUser';
 

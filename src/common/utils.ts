@@ -13,7 +13,7 @@ import {
   setDoc,
 } from 'firebase/firestore';
 
-import { IFirebaseChatCoreConfig, IRoom, IUser } from './types';
+import { IFirebaseChatCoreConfig, IRoom, IUser } from '../react/types';
 
 export let ROOMS_COLLECTION_NAME = 'rooms'
 export let USERS_COLLECTION_NAME = 'users'

@@ -1,10 +1,10 @@
-import firestore from '@react-native-firebase/firestore'
-import * as React from 'react'
+import firestore from '@react-native-firebase/firestore';
+import * as React from 'react';
 
-import { ROOMS_COLLECTION_NAME } from '.'
-import { Room, User } from './types'
-import { useFirebaseUser } from './useFirebaseUser'
-import { fetchUser, processRoomsQuery } from './utils'
+import { ROOMS_COLLECTION_NAME } from '.';
+import { IRoom, IUser } from './types';
+import { useFirebaseUser } from './useFirebaseUser';
+import { fetchUser, processRoomsQuery } from './utils';
 
 /** Returns a stream of rooms from Firebase. Only rooms where current
  * logged in user exist are returned. `orderByUpdatedAt` is used in case
@@ -17,7 +17,7 @@ import { fetchUser, processRoomsQuery } from './utils'
  * is `rooms`, field indexed are `userIds` (type Arrays) and `updatedAt`
  * (type Descending), query scope is `Collection` */
 export const useRooms = (orderByUpdatedAt?: boolean) => {
-  const [rooms, setRooms] = React.useState<Room[]>([])
+  const [rooms, setRooms] = React.useState<IRoom[]>([])
   const { firebaseUser } = useFirebaseUser()
 
   React.useEffect(() => {
@@ -28,12 +28,12 @@ export const useRooms = (orderByUpdatedAt?: boolean) => {
 
     const collection = orderByUpdatedAt
       ? firestore()
-          .collection(ROOMS_COLLECTION_NAME)
-          .where('userIds', 'array-contains', firebaseUser.uid)
-          .orderBy('updatedAt', 'desc')
+        .collection(ROOMS_COLLECTION_NAME)
+        .where('userIds', 'array-contains', firebaseUser.uid)
+        .orderBy('updatedAt', 'desc')
       : firestore()
-          .collection(ROOMS_COLLECTION_NAME)
-          .where('userIds', 'array-contains', firebaseUser.uid)
+        .collection(ROOMS_COLLECTION_NAME)
+        .where('userIds', 'array-contains', firebaseUser.uid)
 
     return collection.onSnapshot(async (query) => {
       const newRooms = await processRoomsQuery({ firebaseUser, query })
@@ -55,7 +55,7 @@ export const useRooms = (orderByUpdatedAt?: boolean) => {
     imageUrl?: string
     metadata?: Record<string, any>
     name: string
-    users: User[]
+    users: IUser[]
   }) => {
     if (!firebaseUser) return
 
@@ -86,12 +86,12 @@ export const useRooms = (orderByUpdatedAt?: boolean) => {
       name,
       type: 'group',
       users: roomUsers,
-    } as Room
+    } as IRoom
   }
 
   /** Creates a direct chat for 2 people. Add `metadata` for any additional custom data. */
   const createRoom = async (
-    otherUser: User,
+    otherUser: IUser,
     metadata?: Record<string, any>
   ) => {
     if (!firebaseUser) return
@@ -138,7 +138,7 @@ export const useRooms = (orderByUpdatedAt?: boolean) => {
       metadata,
       type: 'direct',
       users,
-    } as Room
+    } as IRoom
   }
 
   return { createGroupRoom, createRoom, rooms }

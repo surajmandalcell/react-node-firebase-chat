@@ -1,4 +1,4 @@
-import auth, { UserProfile } from 'firebase/auth';
+import auth, { User } from 'firebase/auth';
 import {
   collection,
   deleteDoc,
@@ -11,22 +11,22 @@ import {
   QuerySnapshot,
   serverTimestamp,
   setDoc,
-} from 'firebase/firestore/lite';
+} from 'firebase/firestore';
 
-import { FirebaseChatCoreConfig, Room, User } from './types';
+import { IFirebaseChatCoreConfig, IRoom, IUser } from './types';
 
 export let ROOMS_COLLECTION_NAME = 'rooms'
 export let USERS_COLLECTION_NAME = 'users'
 
 /** Sets custom config to change default names for rooms
  * and users collections. Also see {@link FirebaseChatCoreConfig}. */
-export const setConfig = (config: FirebaseChatCoreConfig) => {
+export const setConfig = (config: IFirebaseChatCoreConfig) => {
   ROOMS_COLLECTION_NAME = config.roomsCollectionName
   USERS_COLLECTION_NAME = config.usersCollectionName
 }
 
 /** Creates {@link User} in Firebase to store name and avatar used on rooms list */
-export const createUserInFirestore = async (user: User, db: Firestore) => {
+export const createUserInFirestore = async (user: IUser, db: Firestore) => {
   const _collection = collection(db, USERS_COLLECTION_NAME)
   const _doc = doc(_collection, user.id);
   await setDoc(_doc, {
@@ -49,14 +49,14 @@ export const deleteUserFromFirestore = async (userId: string, db: Firestore) => 
 }
 
 /** Fetches user from Firebase and returns a promise */
-export const fetchUser = async (userId: string, db: Firestore, role?: User['role']) => {
+export const fetchUser = async (userId: string, db: Firestore, role?: IUser['role']) => {
   const _collection = collection(db, USERS_COLLECTION_NAME)
   const _doc = doc(_collection, userId);
   const __doc = await getDoc(_doc);
 
   const data = __doc.data()!
 
-  const user: User = {
+  const user: IUser = {
     // Ignore types here, not provided by the Firebase library
     // type-coverage:ignore-next-line
     createdAt: data.createdAt?.toMillis() ?? undefined,
@@ -86,7 +86,7 @@ export const processRoomsQuery = async ({
   query,
   db
 }: {
-  firebaseUser: UserProfile,
+  firebaseUser: User,
   query: QuerySnapshot
   db: Firestore
 }) => {
@@ -103,10 +103,9 @@ export const processRoomDocument = async ({
   firebaseUser,
   db
 }: {
-  _doc:
-  | DocumentSnapshot<DocumentData>
+  _doc: DocumentSnapshot<DocumentData>
   | QueryDocumentSnapshot<DocumentData>,
-  firebaseUser: UserProfile,
+  firebaseUser: User,
   db: Firestore
 }) => {
   const data = _doc.data()!
@@ -126,12 +125,12 @@ export const processRoomDocument = async ({
   // type-coverage:ignore-next-line
   const metadata = data.metadata ?? undefined
   // type-coverage:ignore-next-line
-  const type = data.type as Room['type']
+  const type = data.type as IRoom['type']
   // type-coverage:ignore-next-line
   const userIds = data.userIds as string[]
   const userRoles =
     // type-coverage:ignore-next-line
-    (data.userRoles as Record<string, User['role']>) ?? undefined
+    (data.userRoles as Record<string, IUser['role']>) ?? undefined
 
   const users = await Promise.all(
     userIds.map((userId) => fetchUser(userId, db, userRoles?.[userId]))
@@ -170,7 +169,7 @@ export const processRoomDocument = async ({
     })
   }
 
-  const room: Room = {
+  const room: IRoom = {
     createdAt,
     id,
     imageUrl,

@@ -1,11 +1,11 @@
-import firestore from '@react-native-firebase/firestore'
-import * as React from 'react'
+import firestore from '@react-native-firebase/firestore';
+import * as React from 'react';
 
-import { MessageType, Room } from './types'
-import { useFirebaseUser } from './useFirebaseUser'
+import { IRoom, MessageType } from './types';
+import { useFirebaseUser } from './useFirebaseUser';
 
 /** Returns a stream of messages from Firebase for a given room */
-export const useMessages = (room: Room) => {
+export const useMessages = (room: IRoom) => {
   const [messages, setMessages] = React.useState<MessageType.Any[]>([])
   const { firebaseUser } = useFirebaseUser()
 

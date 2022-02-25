@@ -2,21 +2,21 @@
  * for rooms and users collections. Call `setConfig` before doing anything else if
  * you want to change the default collection names. When using custom names don't forget
  * to update your security rules and indexes. */
-export interface FirebaseChatCoreConfig {
+export interface IFirebaseChatCoreConfig {
   roomsCollectionName: string
   usersCollectionName: string
 }
 
 export namespace MessageType {
-  export type Any = Custom | File | Image | Text | Unsupported
+  export type Any = ICustom | IFile | IImage | IText | IUnsupported
   export type PartialAny =
-    | PartialCustom
-    | PartialFile
-    | PartialImage
-    | PartialText
+    | IPartialCustom
+    | IPartialFile
+    | IPartialImage
+    | IPartialText
 
-  interface Base {
-    author: User
+  interface IBase {
+    author: IUser
     createdAt?: number
     id: string
     metadata?: Record<string, any>
@@ -26,16 +26,16 @@ export namespace MessageType {
     updatedAt?: number
   }
 
-  export interface PartialCustom extends Base {
+  export interface IPartialCustom extends IBase {
     metadata?: Record<string, any>
     type: 'custom'
   }
 
-  export interface Custom extends Base, PartialCustom {
+  export interface ICustom extends IBase, IPartialCustom {
     type: 'custom'
   }
 
-  export interface PartialFile {
+  export interface IPartialFile {
     metadata?: Record<string, any>
     mimeType?: string
     name: string
@@ -44,11 +44,11 @@ export namespace MessageType {
     uri: string
   }
 
-  export interface File extends Base, PartialFile {
+  export interface IFile extends IBase, IPartialFile {
     type: 'file'
   }
 
-  export interface PartialImage {
+  export interface IPartialImage {
     height?: number
     metadata?: Record<string, any>
     name: string
@@ -58,40 +58,40 @@ export namespace MessageType {
     width?: number
   }
 
-  export interface Image extends Base, PartialImage {
+  export interface IImage extends IBase, IPartialImage {
     type: 'image'
   }
 
-  export interface PartialText {
+  export interface IPartialText {
     metadata?: Record<string, any>
-    previewData?: PreviewData
+    previewData?: IPreviewData
     text: string
     type: 'text'
   }
 
-  export interface Text extends Base, PartialText {
+  export interface IText extends IBase, IPartialText {
     type: 'text'
   }
 
-  export interface Unsupported extends Base {
+  export interface IUnsupported extends IBase {
     type: 'unsupported'
   }
 }
 
-export interface PreviewData {
+export interface IPreviewData {
   description?: string
-  image?: PreviewDataImage
+  image?: IPreviewDataImage
   link?: string
   title?: string
 }
 
-export interface PreviewDataImage {
+export interface IPreviewDataImage {
   height: number
   url: string
   width: number
 }
 
-export interface Room {
+export interface IRoom {
   createdAt?: number
   id: string
   imageUrl?: string
@@ -100,10 +100,10 @@ export interface Room {
   name?: string
   type: 'channel' | 'direct' | 'group' | 'unsupported'
   updatedAt?: number
-  users: User[]
+  users: IUser[]
 }
 
-export interface User {
+export interface IUser {
   createdAt?: number
   firstName?: string
   id: string

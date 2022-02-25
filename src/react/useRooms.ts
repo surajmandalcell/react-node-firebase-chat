@@ -1,3 +1,16 @@
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  getFirestore,
+  onSnapshot,
+  orderBy,
+  query,
+  serverTimestamp,
+  setDoc,
+  where,
+} from 'firebase/firestore';
 import React from 'react';
 
 import { fetchUser, processRoomsQuery, ROOMS_COLLECTION_NAME } from '../common/utils';
@@ -17,6 +30,7 @@ import { useFirebaseUser } from './useFirebaseUser';
 export const useRooms = (orderByUpdatedAt?: boolean) => {
   const [rooms, setRooms] = React.useState<IRoom[]>([])
   const { firebaseUser } = useFirebaseUser()
+  const db = getFirestore();
 
   React.useEffect(() => {
     if (!firebaseUser) {
@@ -24,19 +38,20 @@ export const useRooms = (orderByUpdatedAt?: boolean) => {
       return
     }
 
-    const collection = orderByUpdatedAt
-      ? firestore()
-        .collection(ROOMS_COLLECTION_NAME)
-        .where('userIds', 'array-contains', firebaseUser.uid)
-        .orderBy('updatedAt', 'desc')
-      : firestore()
-        .collection(ROOMS_COLLECTION_NAME)
-        .where('userIds', 'array-contains', firebaseUser.uid)
+    let _collection;
 
-    return collection.onSnapshot(async (query) => {
-      const newRooms = await processRoomsQuery({ firebaseUser, query })
+    if (orderByUpdatedAt) {
+      const col = collection(db, ROOMS_COLLECTION_NAME)
+      _collection = query(col, where('userIds', 'array-contains', firebaseUser.uid), orderBy('updatedAt', 'desc'))
+    } else {
+      const col = collection(db, ROOMS_COLLECTION_NAME)
+      _collection = query(col, where('userIds', 'array-contains', firebaseUser.uid))
+    }
 
-      setRooms(newRooms)
+    return onSnapshot(_collection, async (_query: any) => {
+      const newRooms = await processRoomsQuery({ firebaseUser, query: _query });
+
+      setRooms(newRooms);
     })
   }, [firebaseUser, orderByUpdatedAt])
 
@@ -61,21 +76,23 @@ export const useRooms = (orderByUpdatedAt?: boolean) => {
 
     const roomUsers = [currentUser].concat(users)
 
-    const room = await firestore()
-      .collection(ROOMS_COLLECTION_NAME)
-      .add({
-        createdAt: firestore.FieldValue.serverTimestamp(),
+    const _collection = collection(db, ROOMS_COLLECTION_NAME);
+    const _docRef = doc(_collection);
+    await setDoc(_docRef, {
+        createdAt: serverTimestamp(),
         imageUrl,
         metadata,
         name,
         type: 'group',
-        updatedAt: firestore.FieldValue.serverTimestamp(),
+        updatedAt: serverTimestamp(),
         userIds: roomUsers.map((u) => u.id),
         userRoles: roomUsers.reduce(
           (prev, curr) => ({ ...prev, [curr.id]: curr.role }),
           {}
         ),
-      })
+      });
+
+    const room = await getDoc(_docRef);
 
     return {
       id: room.id,
@@ -94,12 +111,11 @@ export const useRooms = (orderByUpdatedAt?: boolean) => {
   ) => {
     if (!firebaseUser) return
 
-    const query = await firestore()
-      .collection(ROOMS_COLLECTION_NAME)
-      .where('userIds', 'array-contains', firebaseUser.uid)
-      .get()
+    const _collection = collection(db, ROOMS_COLLECTION_NAME);
+    const _query = query(_collection,where('userIds', 'array-contains', firebaseUser.uid));
+    const _docs = await getDocs(_query);
 
-    const allRooms = await processRoomsQuery({ firebaseUser, query })
+    const allRooms = await processRoomsQuery({ firebaseUser, query: _docs });
 
     const existingRoom = allRooms.find((room) => {
       if (room.type === 'group') return false
@@ -118,18 +134,20 @@ export const useRooms = (orderByUpdatedAt?: boolean) => {
 
     const users = [currentUser].concat(otherUser)
 
-    const room = await firestore()
-      .collection(ROOMS_COLLECTION_NAME)
-      .add({
-        createdAt: firestore.FieldValue.serverTimestamp(),
-        imageUrl: undefined,
-        metadata,
-        name: undefined,
-        type: 'direct',
-        updatedAt: firestore.FieldValue.serverTimestamp(),
-        userIds: users.map((u) => u.id),
-        userRoles: undefined,
-      })
+
+    const _docRef = doc(_collection);
+    await setDoc(_docRef,{
+      createdAt: serverTimestamp(),
+      imageUrl: undefined,
+      metadata,
+      name: undefined,
+      type: 'direct',
+      updatedAt: serverTimestamp(),
+      userIds: users.map((u) => u.id),
+      userRoles: undefined,
+    })
+
+    const room = await getDoc(_docRef);
 
     return {
       id: room.id,

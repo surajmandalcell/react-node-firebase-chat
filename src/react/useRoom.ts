@@ -16,7 +16,7 @@ export const useRoom = (initialRoom: IRoom, db: Firestore) => {
     const _collection = collection(db, ROOMS_COLLECTION_NAME);
     const _doc = doc(_collection, initialRoom.id);
     const _onSnapshot = onSnapshot(_doc, async (__doc) => {
-      const newRoom = await processRoomDocument({ _doc: __doc, firebaseUser, db })
+      const newRoom = await processRoomDocument({ _doc: __doc, firebaseUser })
 
       setRoom(newRoom)
     })

@@ -5,8 +5,8 @@ import {
   doc,
   DocumentData,
   DocumentSnapshot,
-  Firestore,
   getDoc,
+  getFirestore,
   QueryDocumentSnapshot,
   QuerySnapshot,
   serverTimestamp,
@@ -26,7 +26,8 @@ export const setConfig = (config: IFirebaseChatCoreConfig) => {
 }
 
 /** Creates {@link User} in Firebase to store name and avatar used on rooms list */
-export const createUserInFirestore = async (user: IUser, db: Firestore) => {
+export const createUserInFirestore = async (user: IUser) => {
+  const db = getFirestore();
   const _collection = collection(db, USERS_COLLECTION_NAME)
   const _doc = doc(_collection, user.id);
   await setDoc(_doc, {
@@ -42,14 +43,16 @@ export const createUserInFirestore = async (user: IUser, db: Firestore) => {
 }
 
 /** Removes {@link User} from `users` collection in Firebase */
-export const deleteUserFromFirestore = async (userId: string, db: Firestore) => {
+export const deleteUserFromFirestore = async (userId: string) => {
+  const db = getFirestore();
   const _collection = collection(db, USERS_COLLECTION_NAME)
   const _doc = doc(_collection, userId)
   await deleteDoc(_doc);
 }
 
 /** Fetches user from Firebase and returns a promise */
-export const fetchUser = async (userId: string, db: Firestore, role?: IUser['role']) => {
+export const fetchUser = async (userId: string, role?: IUser['role']) => {
+  const db = getFirestore();
   const _collection = collection(db, USERS_COLLECTION_NAME)
   const _doc = doc(_collection, userId);
   const __doc = await getDoc(_doc);
@@ -84,14 +87,13 @@ export const fetchUser = async (userId: string, db: Firestore, role?: IUser['rol
 export const processRoomsQuery = async ({
   firebaseUser,
   query,
-  db
 }: {
   firebaseUser: User,
   query: QuerySnapshot
-  db: Firestore
 }) => {
+  const db = getFirestore();
   const promises = query.docs.map(async (_doc) =>
-    processRoomDocument({ _doc, firebaseUser, db })
+    processRoomDocument({ _doc, firebaseUser })
   )
 
   return await Promise.all(promises)
@@ -100,14 +102,13 @@ export const processRoomsQuery = async ({
 /** Returns a {@link Room} created from Firebase document */
 export const processRoomDocument = async ({
   _doc,
-  firebaseUser,
-  db
+  firebaseUser
 }: {
   _doc: DocumentSnapshot<DocumentData>
   | QueryDocumentSnapshot<DocumentData>,
-  firebaseUser: User,
-  db: Firestore
+  firebaseUser: User
 }) => {
+  const db = getFirestore();
   const data = _doc.data()!
 
   // Ignore types here, not provided by the Firebase library
@@ -133,7 +134,7 @@ export const processRoomDocument = async ({
     (data.userRoles as Record<string, IUser['role']>) ?? undefined
 
   const users = await Promise.all(
-    userIds.map((userId) => fetchUser(userId, db, userRoles?.[userId]))
+    userIds.map((userId) => fetchUser(userId, userRoles?.[userId]))
   )
 
   if (type === 'direct') {

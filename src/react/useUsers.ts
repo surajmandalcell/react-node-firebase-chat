@@ -7,23 +7,23 @@ import { useFirebaseUser } from './useFirebaseUser';
 
 /** Returns a stream of all users from Firebase */
 export const useUsers = (db: Firestore) => {
-  const [users, setUsers] = React.useState<IUser[]>([])
-  const { firebaseUser } = useFirebaseUser()
+  const [users, setUsers] = React.useState<IUser[]>([]);
+  const { firebaseUser } = useFirebaseUser();
 
   React.useEffect(() => {
     if (!firebaseUser) {
-      setUsers([])
-      return
+      setUsers([]);
+      return;
     }
 
     const _collection = collection(db, USERS_COLLECTION_NAME);
     const _onSnapshot = onSnapshot(_collection, (query) => {
-      const newUsers: IUser[] = []
+      const newUsers: IUser[] = [];
 
       query?.forEach((doc) => {
-        if (firebaseUser.uid === doc.id) return
+        if (firebaseUser.uid === doc.id) return;
 
-        const data = doc.data()!
+        const data = doc.data();
 
         const user: IUser = {
           // Ignore types here, not provided by the Firebase library
@@ -42,16 +42,16 @@ export const useUsers = (db: Firestore) => {
           metadata: data.metadata ?? undefined,
           // type-coverage:ignore-next-line
           updatedAt: data.updatedAt?.toMillis() ?? undefined,
-        }
+        };
 
-        newUsers.push(user)
-      })
+        newUsers.push(user);
+      });
 
-      setUsers(newUsers)
-    })
+      setUsers(newUsers);
+    });
 
     return _onSnapshot;
-  }, [firebaseUser])
+  }, [firebaseUser]);
 
-  return { users }
-}
+  return { users };
+};

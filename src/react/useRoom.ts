@@ -7,21 +7,21 @@ import { useFirebaseUser } from './useFirebaseUser';
 
 /** Returns a stream of changes in a room from Firebase */
 export const useRoom = (initialRoom: IRoom, db: Firestore) => {
-  const [room, setRoom] = React.useState(initialRoom)
-  const { firebaseUser } = useFirebaseUser()
+  const [room, setRoom] = React.useState(initialRoom);
+  const { firebaseUser } = useFirebaseUser();
 
   React.useEffect(() => {
-    if (!firebaseUser) return
+    if (!firebaseUser) return;
 
     const _collection = collection(db, ROOMS_COLLECTION_NAME);
     const _doc = doc(_collection, initialRoom.id);
     const _onSnapshot = onSnapshot(_doc, async (__doc) => {
-      const newRoom = await processRoomDocument({ _doc: __doc, firebaseUser })
+      const newRoom = await processRoomDocument({ _doc: __doc, firebaseUser });
 
-      setRoom(newRoom)
-    })
+      setRoom(newRoom);
+    });
     return _onSnapshot;
-  }, [firebaseUser, initialRoom.id])
+  }, [firebaseUser, initialRoom.id]);
 
-  return { room }
-}
+  return { room };
+};

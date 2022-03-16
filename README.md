@@ -1,4 +1,4 @@
-# React Firebase Chat
+# React & Node Firebase Chat
 
 ### `Flyerhq` React & Node Firebase Chat
 

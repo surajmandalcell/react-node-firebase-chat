@@ -6,7 +6,7 @@
 
 ### Status
 
-✅ Migrating from react native to react web
-> Adding node support
-> Migrate `React Native` Example to `React Web`
-> Create an `express` example
+- [x] Migrating from react native to react web
+- [ ] Adding node support
+- [ ] Create an `express` example
+- [ ] Migrate `React Native` Example to `React Web`

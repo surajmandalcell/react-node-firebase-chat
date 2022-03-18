@@ -1,11 +1,11 @@
 {
-  "name": "@surajmandalcell/react-firebase-chat",
+  "name": "@surajmandalcell/react-node-firebase-chat",
   "version": "1.4.2",
   "description": "Actively maintained, community-driven Firebase BaaS for chat applications with an optional chat UI.",
   "homepage": "https://flyer.chat",
   "repository": {
     "type": "git",
-    "url": "https://github.com/surajmandalcell/react-firebase-chat.git"
+    "url": "https://github.com/surajmandalcell/react-node-firebase-chat.git"
   },
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
